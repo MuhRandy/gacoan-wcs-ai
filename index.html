@@ -22,23 +22,126 @@
           BlinkMacSystemFont,
           Roboto,
           sans-serif;
-        background: #f4f1de;
+        transition:
+          background 0.3s ease,
+          color 0.2s ease;
         min-height: 100vh;
         padding: 20px;
       }
 
-      /* New Theme Colors */
-      :root {
-        --teal: #2a9d8f;
-        --teal-dark: #21867a;
-        --teal-light: #6dc4b8;
-        --coral: #e76f51;
-        --coral-dark: #d45a3a;
-        --coral-light: #f4a261;
-        --cream: #f4f1de;
-        --white: #ffffff;
-        --dark: #264653;
-        --gray: #8d99ae;
+      /* ============================================================
+           THEME 1: TEAL & CORAL (Default)
+        ============================================================ */
+      body.theme-teal {
+        --primary: #2a9d8f;
+        --primary-dark: #21867a;
+        --primary-light: #6dc4b8;
+        --secondary: #e76f51;
+        --secondary-dark: #d45a3a;
+        --secondary-light: #f4a261;
+        --bg: #f4f1de;
+        --card-bg: #ffffff;
+        --text-dark: #264653;
+        --text-light: #8d99ae;
+        --display-grad-start: #2a9d8f;
+        --display-grad-end: #e76f51;
+        --badge-start: #6dc4b8;
+        --badge-end: #f4a261;
+        --border: rgba(42, 157, 143, 0.15);
+        --shadow: rgba(42, 157, 143, 0.3);
+      }
+
+      /* ============================================================
+           THEME 2: HITAM PUTIH (Monochrome)
+        ============================================================ */
+      body.theme-monochrome {
+        --primary: #3b3b3b;
+        --primary-dark: #2a2a2a;
+        --primary-light: #6b6b6b;
+        --secondary: #1a1a1a;
+        --secondary-dark: #000000;
+        --secondary-light: #4a4a4a;
+        --bg: #f5f5f5;
+        --card-bg: #ffffff;
+        --text-dark: #1a1a1a;
+        --text-light: #6b6b6b;
+        --display-grad-start: #3b3b3b;
+        --display-grad-end: #1a1a1a;
+        --badge-start: #9a9a9a;
+        --badge-end: #6b6b6b;
+        --border: rgba(59, 59, 59, 0.15);
+        --shadow: rgba(0, 0, 0, 0.2);
+      }
+
+      /* ============================================================
+           THEME 3: BIRU LAUT (Ocean)
+        ============================================================ */
+      body.theme-ocean {
+        --primary: #1a73e8;
+        --primary-dark: #0d5bbf;
+        --primary-light: #4a9aff;
+        --secondary: #00acc1;
+        --secondary-dark: #00838f;
+        --secondary-light: #4dd0e1;
+        --bg: #e8f4fd;
+        --card-bg: #ffffff;
+        --text-dark: #01579b;
+        --text-light: #607d8b;
+        --display-grad-start: #1a73e8;
+        --display-grad-end: #00acc1;
+        --badge-start: #4a9aff;
+        --badge-end: #4dd0e1;
+        --border: rgba(26, 115, 232, 0.15);
+        --shadow: rgba(26, 115, 232, 0.3);
+      }
+
+      /* ============================================================
+           THEME 4: UNGU LAVENDER (Purple)
+        ============================================================ */
+      body.theme-purple {
+        --primary: #7b2d8e;
+        --primary-dark: #5e1970;
+        --primary-light: #a569bd;
+        --secondary: #e67e22;
+        --secondary-dark: #ca6f1e;
+        --secondary-light: #f0b27a;
+        --bg: #f7f0fa;
+        --card-bg: #ffffff;
+        --text-dark: #4a235a;
+        --text-light: #9b59b6;
+        --display-grad-start: #7b2d8e;
+        --display-grad-end: #e67e22;
+        --badge-start: #a569bd;
+        --badge-end: #f0b27a;
+        --border: rgba(123, 45, 142, 0.15);
+        --shadow: rgba(123, 45, 142, 0.3);
+      }
+
+      /* ============================================================
+           THEME 5: HIJAU DAUN (Forest)
+        ============================================================ */
+      body.theme-forest {
+        --primary: #2e7d32;
+        --primary-dark: #1b5e20;
+        --primary-light: #66bb6a;
+        --secondary: #ff8f00;
+        --secondary-dark: #e65100;
+        --secondary-light: #ffb74d;
+        --bg: #e8f5e9;
+        --card-bg: #ffffff;
+        --text-dark: #1b5e20;
+        --text-light: #689f38;
+        --display-grad-start: #2e7d32;
+        --display-grad-end: #ff8f00;
+        --badge-start: #66bb6a;
+        --badge-end: #ffb74d;
+        --border: rgba(46, 125, 50, 0.15);
+        --shadow: rgba(46, 125, 50, 0.3);
+      }
+
+      /* Apply theme variables */
+      body {
+        background: var(--bg);
       }
 
       .container {
@@ -46,15 +149,56 @@
         margin: 0 auto;
       }
 
+      /* Theme Selector */
+      .theme-selector {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .theme-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .theme-btn.active {
+        border-color: white;
+        box-shadow: 0 0 0 2px var(--primary);
+        transform: scale(1.05);
+      }
+
+      .theme-teal-btn {
+        background: linear-gradient(135deg, #2a9d8f, #e76f51);
+      }
+      .theme-monochrome-btn {
+        background: linear-gradient(135deg, #3b3b3b, #1a1a1a);
+      }
+      .theme-ocean-btn {
+        background: linear-gradient(135deg, #1a73e8, #00acc1);
+      }
+      .theme-purple-btn {
+        background: linear-gradient(135deg, #7b2d8e, #e67e22);
+      }
+      .theme-forest-btn {
+        background: linear-gradient(135deg, #2e7d32, #ff8f00);
+      }
+
       /* Header */
       .header {
         text-align: center;
         margin-bottom: 28px;
         padding: 20px 16px;
-        background: var(--white);
+        background: var(--card-bg);
         border-radius: 48px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(42, 157, 143, 0.15);
+        border: 1px solid var(--border);
       }
 
       .logo-icon {
@@ -64,16 +208,19 @@
 
       .header h1 {
         font-size: 1.8rem;
-        background: linear-gradient(135deg, var(--teal) 0%, var(--coral) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
         font-weight: 700;
-        letter-spacing: -0.5px;
       }
 
       .header p {
-        color: var(--gray);
+        color: var(--text-light);
         font-size: 0.85rem;
         margin-top: 6px;
       }
@@ -87,18 +234,22 @@
       }
 
       .stat-card {
-        background: var(--white);
+        background: var(--card-bg);
         border-radius: 24px;
         padding: 14px 10px;
         text-align: center;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(42, 157, 143, 0.15);
+        border: 1px solid var(--border);
       }
 
       .stat-number {
         font-size: 1.6rem;
         font-weight: 800;
-        background: linear-gradient(135deg, var(--teal) 0%, var(--coral) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
@@ -106,18 +257,22 @@
 
       .stat-label {
         font-size: 0.7rem;
-        color: var(--gray);
+        color: var(--text-light);
         margin-top: 4px;
       }
 
       /* Display Panel */
       .display-panel {
-        background: linear-gradient(135deg, var(--teal) 0%, var(--coral) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--display-grad-start) 0%,
+          var(--display-grad-end) 100%
+        );
         border-radius: 40px;
         padding: 28px 20px;
         text-align: center;
         margin-bottom: 24px;
-        box-shadow: 0 12px 30px rgba(42, 157, 143, 0.3);
+        box-shadow: 0 12px 30px var(--shadow);
       }
 
       .current-number {
@@ -146,7 +301,6 @@
         display: inline-block;
       }
 
-      /* Section Title */
       .section-title {
         display: flex;
         align-items: baseline;
@@ -158,15 +312,14 @@
       .section-title h2 {
         font-size: 1rem;
         font-weight: 600;
-        color: var(--dark);
+        color: var(--text-dark);
       }
 
       .section-title span {
         font-size: 0.7rem;
-        color: var(--gray);
+        color: var(--text-light);
       }
 
-      /* Number Grid */
       .number-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -175,26 +328,29 @@
       }
 
       .number-btn {
-        background: var(--white);
-        border: 2px solid rgba(42, 157, 143, 0.25);
+        background: var(--card-bg);
+        border: 2px solid var(--border);
         border-radius: 28px;
         padding: 16px 8px;
         font-size: 1.2rem;
         font-weight: 700;
-        color: var(--teal);
+        color: var(--primary);
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       }
 
       .number-btn:hover {
-        border-color: var(--coral);
+        border-color: var(--secondary);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(231, 111, 81, 0.2);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       }
 
       .number-btn.called {
-        background: linear-gradient(135deg, var(--teal) 0%, var(--coral) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
         border-color: transparent;
         color: white;
         transform: scale(0.98);
@@ -213,14 +369,13 @@
         opacity: 0.6;
       }
 
-      /* Control Panel */
       .control-panel {
-        background: var(--white);
+        background: var(--card-bg);
         border-radius: 32px;
         padding: 20px;
         margin-bottom: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(42, 157, 143, 0.1);
+        border: 1px solid var(--border);
       }
 
       .volume-control {
@@ -241,8 +396,8 @@
         -webkit-appearance: none;
         background: linear-gradient(
           90deg,
-          var(--teal-light),
-          var(--coral-light)
+          var(--primary-light),
+          var(--secondary-light)
         );
         border-radius: 10px;
       }
@@ -252,18 +407,18 @@
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: var(--coral);
+        background: var(--secondary);
         cursor: pointer;
-        box-shadow: 0 0 6px var(--coral);
+        box-shadow: 0 0 6px var(--secondary);
         border: 2px solid white;
       }
 
       .audio-status {
-        background: #e8f5f2;
+        background: rgba(128, 128, 128, 0.1);
         border-radius: 20px;
         padding: 12px 16px;
         font-size: 0.75rem;
-        color: var(--teal);
+        color: var(--primary);
         text-align: center;
       }
 
@@ -277,19 +432,18 @@
         color: #c62828;
       }
 
-      /* Recent Calls */
       .recent-section {
-        background: var(--white);
+        background: var(--card-bg);
         border-radius: 24px;
         padding: 16px;
         margin-top: 16px;
-        border: 1px solid rgba(42, 157, 143, 0.1);
+        border: 1px solid var(--border);
       }
 
       .recent-title {
         font-size: 0.8rem;
         font-weight: 600;
-        color: var(--teal);
+        color: var(--primary);
         margin-bottom: 12px;
         display: flex;
         align-items: center;
@@ -305,22 +459,21 @@
       .recent-badge {
         background: linear-gradient(
           135deg,
-          var(--teal-light) 0%,
-          var(--coral-light) 100%
+          var(--primary-light) 0%,
+          var(--secondary-light) 100%
         );
         border-radius: 30px;
         padding: 4px 14px;
         font-size: 0.7rem;
         font-weight: 500;
-        color: var(--dark);
+        color: var(--text-dark);
       }
 
-      /* Footer */
       .footer {
         text-align: center;
         padding: 20px;
         font-size: 0.65rem;
-        color: var(--gray);
+        color: var(--text-light);
       }
 
       @media (max-width: 600px) {
@@ -345,15 +498,41 @@
       }
     </style>
   </head>
-  <body>
+  <body class="theme-teal">
     <div class="container">
+      <!-- Theme Selector -->
+      <div class="theme-selector">
+        <div
+          class="theme-btn theme-teal-btn active"
+          onclick="setTheme('teal')"
+          title="Teal & Coral"
+        ></div>
+        <div
+          class="theme-btn theme-monochrome-btn"
+          onclick="setTheme('monochrome')"
+          title="Hitam Putih"
+        ></div>
+        <div
+          class="theme-btn theme-ocean-btn"
+          onclick="setTheme('ocean')"
+          title="Biru Laut"
+        ></div>
+        <div
+          class="theme-btn theme-purple-btn"
+          onclick="setTheme('purple')"
+          title="Ungu Lavender"
+        ></div>
+        <div
+          class="theme-btn theme-forest-btn"
+          onclick="setTheme('forest')"
+          title="Hijau Daun"
+        ></div>
+      </div>
+
       <!-- Header -->
       <div class="header">
         <div class="logo-icon">🍜</div>
-        <h1>
-          GACOAN
-          <span style="background: none; color: #2a9d8f">Voice Caller</span>
-        </h1>
+        <h1>GACOAN <span style="background: none">Voice Caller</span></h1>
         <p>Klik nomor meja untuk memanggil pelanggan</p>
       </div>
 
@@ -407,7 +586,7 @@
       <div class="recent-section">
         <div class="recent-title"><span>🕐</span> Panggilan Terakhir</div>
         <div class="recent-list" id="recentList">
-          <span style="color: var(--gray); font-size: 0.7rem"
+          <span style="color: var(--text-light); font-size: 0.7rem"
             >Belum ada panggilan</span
           >
         </div>
@@ -433,8 +612,54 @@
         localStorage.getItem("gacoan_callCounter") || "0",
       );
 
-      // Update call counter display
       document.getElementById("callCount").innerText = callCounter;
+
+      // ============================================================
+      // THEME SWITCHER
+      // ============================================================
+      function setTheme(theme) {
+        const body = document.body;
+        // Remove all theme classes
+        body.classList.remove(
+          "theme-teal",
+          "theme-monochrome",
+          "theme-ocean",
+          "theme-purple",
+          "theme-forest",
+        );
+        // Add selected theme class
+        body.classList.add(`theme-${theme}`);
+
+        // Update active button styling
+        document.querySelectorAll(".theme-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        // Save theme preference
+        localStorage.setItem("gacoan_theme", theme);
+      }
+
+      // Load saved theme
+      function loadSavedTheme() {
+        const savedTheme = localStorage.getItem("gacoan_theme");
+        if (savedTheme && savedTheme !== "teal") {
+          const validThemes = [
+            "teal",
+            "monochrome",
+            "ocean",
+            "purple",
+            "forest",
+          ];
+          if (validThemes.includes(savedTheme)) {
+            document.body.classList.remove("theme-teal");
+            document.body.classList.add(`theme-${savedTheme}`);
+            // Update active button
+            const btn = document.querySelector(`.theme-${savedTheme}-btn`);
+            if (btn) btn.classList.add("active");
+          }
+        }
+      }
 
       // Volume
       const volumeSlider = document.getElementById("volumeSlider");
@@ -445,7 +670,7 @@
       });
 
       // ============================================================
-      // CEK KETERSEDIAAN AUDIO (Format: 1.mp3, 2.mp3, ...)
+      // CEK KETERSEDIAAN AUDIO
       // ============================================================
       async function checkAudioFiles() {
         const statusDiv = document.getElementById("audioStatus");
@@ -489,7 +714,7 @@
       }
 
       // ============================================================
-      // RENDER GRID NOMOR MEJA
+      // RENDER GRID
       // ============================================================
       function renderNumberGrid() {
         const grid = document.getElementById("numberGrid");
@@ -518,7 +743,7 @@
         const container = document.getElementById("recentList");
         if (recentCalls.length === 0) {
           container.innerHTML =
-            '<span style="color:var(--gray); font-size:0.7rem;">Belum ada panggilan</span>';
+            '<span style="color:var(--text-light); font-size:0.7rem;">Belum ada panggilan</span>';
           return;
         }
 
@@ -610,6 +835,7 @@
       // INIT
       // ============================================================
       function init() {
+        loadSavedTheme();
         checkAudioFiles();
         updateRecentList();
         document.getElementById("totalTables").innerText = "50";
