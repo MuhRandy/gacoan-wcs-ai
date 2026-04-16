@@ -139,7 +139,6 @@
         --shadow: rgba(46, 125, 50, 0.3);
       }
 
-      /* Apply theme variables */
       body {
         background: var(--bg);
       }
@@ -147,6 +146,67 @@
       .container {
         max-width: 1000px;
         margin: 0 auto;
+      }
+
+      /* Queue Indicator */
+      .queue-indicator {
+        background: var(--card-bg);
+        border-radius: 40px;
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .queue-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .queue-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .queue-item {
+        background: linear-gradient(
+          135deg,
+          var(--primary-light) 0%,
+          var(--secondary-light) 100%
+        );
+        border-radius: 30px;
+        padding: 4px 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .queue-item.playing {
+        animation: pulse 1s infinite;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        color: white;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.8;
+          transform: scale(1.02);
+        }
       }
 
       /* Theme Selector */
@@ -190,7 +250,6 @@
         background: linear-gradient(135deg, #2e7d32, #ff8f00);
       }
 
-      /* Header */
       .header {
         text-align: center;
         margin-bottom: 28px;
@@ -225,7 +284,6 @@
         margin-top: 6px;
       }
 
-      /* Stats Cards */
       .stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -261,7 +319,6 @@
         margin-top: 4px;
       }
 
-      /* Display Panel */
       .display-panel {
         background: linear-gradient(
           135deg,
@@ -345,15 +402,8 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       }
 
-      .number-btn.called {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--secondary) 100%
-        );
-        border-color: transparent;
-        color: white;
-        transform: scale(0.98);
+      .number-btn:active {
+        transform: scale(0.95);
       }
 
       .number-btn:disabled {
@@ -536,6 +586,16 @@
         <p>Klik nomor meja untuk memanggil pelanggan</p>
       </div>
 
+      <!-- Queue Indicator -->
+      <div class="queue-indicator">
+        <span class="queue-label">🎵 Antrian Panggilan:</span>
+        <div class="queue-list" id="queueList">
+          <span style="color: var(--text-light); font-size: 0.7rem"
+            >Tidak ada antrian</span
+          >
+        </div>
+      </div>
+
       <!-- Stats -->
       <div class="stats">
         <div class="stat-card">
@@ -612,6 +672,10 @@
         localStorage.getItem("gacoan_callCounter") || "0",
       );
 
+      // QUEUE SYSTEM
+      let audioQueue = [];
+      let isPlaying = false;
+
       document.getElementById("callCount").innerText = callCounter;
 
       // ============================================================
@@ -619,7 +683,6 @@
       // ============================================================
       function setTheme(theme) {
         const body = document.body;
-        // Remove all theme classes
         body.classList.remove(
           "theme-teal",
           "theme-monochrome",
@@ -627,20 +690,16 @@
           "theme-purple",
           "theme-forest",
         );
-        // Add selected theme class
         body.classList.add(`theme-${theme}`);
 
-        // Update active button styling
         document.querySelectorAll(".theme-btn").forEach((btn) => {
           btn.classList.remove("active");
         });
         event.target.classList.add("active");
 
-        // Save theme preference
         localStorage.setItem("gacoan_theme", theme);
       }
 
-      // Load saved theme
       function loadSavedTheme() {
         const savedTheme = localStorage.getItem("gacoan_theme");
         if (savedTheme && savedTheme !== "teal") {
@@ -654,7 +713,6 @@
           if (validThemes.includes(savedTheme)) {
             document.body.classList.remove("theme-teal");
             document.body.classList.add(`theme-${savedTheme}`);
-            // Update active button
             const btn = document.querySelector(`.theme-${savedTheme}-btn`);
             if (btn) btn.classList.add("active");
           }
@@ -668,6 +726,115 @@
         document.getElementById("volumePercent").innerText = val + "%";
         audioPlayer.volume = val / 100;
       });
+
+      // ============================================================
+      // QUEUE DISPLAY
+      // ============================================================
+      function updateQueueDisplay() {
+        const queueContainer = document.getElementById("queueList");
+        if (audioQueue.length === 0) {
+          queueContainer.innerHTML =
+            '<span style="color:var(--text-light); font-size:0.7rem;">Tidak ada antrian</span>';
+          return;
+        }
+
+        queueContainer.innerHTML = audioQueue
+          .map((number, index) => {
+            const isCurrent = index === 0 && isPlaying;
+            return `<span class="queue-item ${isCurrent ? "playing" : ""}">Meja ${number}</span>`;
+          })
+          .join("");
+      }
+
+      // ============================================================
+      // PLAY NEXT IN QUEUE
+      // ============================================================
+      async function playNext() {
+        if (audioQueue.length === 0) {
+          isPlaying = false;
+          updateQueueDisplay();
+          document.getElementById("statusText").innerHTML =
+            "✨ Siap melayani ✨";
+          return;
+        }
+
+        isPlaying = true;
+        const nextNumber = audioQueue[0];
+        updateQueueDisplay();
+
+        // Update display panel
+        document.getElementById("currentNumber").innerText = nextNumber;
+        document.getElementById("statusText").innerHTML =
+          `📢 Memanggil meja ${nextNumber}... ✨`;
+
+        // Play audio
+        if (!audioFiles[nextNumber]) {
+          console.error(`Audio meja ${nextNumber} tidak tersedia`);
+          // Remove failed item and continue
+          audioQueue.shift();
+          playNext();
+          return;
+        }
+
+        try {
+          audioPlayer.src = audioFiles[nextNumber];
+          audioPlayer.volume = volumeSlider.value / 100;
+
+          await audioPlayer.play();
+          // Wait for audio to finish
+          await new Promise((resolve) => {
+            audioPlayer.onended = resolve;
+            audioPlayer.onerror = resolve;
+          });
+
+          // Remove played item from queue
+          audioQueue.shift();
+
+          // Add to recent calls
+          recentCalls.unshift({
+            number: nextNumber,
+            time: new Date().toLocaleTimeString(),
+          });
+          if (recentCalls.length > 8) recentCalls.pop();
+          updateRecentList();
+
+          // Update call counter
+          callCounter++;
+          document.getElementById("callCount").innerText = callCounter;
+          localStorage.setItem("gacoan_callCounter", callCounter);
+
+          document.getElementById("lastCall").innerHTML =
+            `Terakhir: Meja ${nextNumber} - ${new Date().toLocaleTimeString()}`;
+
+          // Play next in queue
+          playNext();
+        } catch (error) {
+          console.error("Error playing audio:", error);
+          // Remove problematic item and continue
+          audioQueue.shift();
+          playNext();
+        }
+      }
+
+      // ============================================================
+      // ADD TO QUEUE
+      // ============================================================
+      function addToQueue(number) {
+        if (!audioFiles[number]) {
+          alert(
+            `Audio untuk meja ${number} tidak tersedia. Periksa file ${number}.mp3`,
+          );
+          return;
+        }
+
+        audioQueue.push(number);
+        updateQueueDisplay();
+
+        // If not currently playing, start playing
+        if (!isPlaying) {
+          playNext();
+        }
+      }
 
       // ============================================================
       // CEK KETERSEDIAAN AUDIO
@@ -722,11 +889,8 @@
 
         for (let i = 1; i <= 50; i++) {
           const hasAudio = !!audioFiles[i];
-          const isCalled = currentNumber === i;
           html += `
-                    <button class="number-btn ${isCalled ? "called" : ""}" 
-                            onclick="callNumber(${i})" 
-                            ${!hasAudio ? "disabled" : ""}>
+                    <button class="number-btn" onclick="addToQueue(${i})" ${!hasAudio ? "disabled" : ""}>
                         ${i}
                         <span class="audio-badge">${hasAudio ? "🔊" : "❌"}</span>
                     </button>
@@ -754,81 +918,6 @@
             `,
           )
           .join("");
-      }
-
-      // ============================================================
-      // PLAY AUDIO
-      // ============================================================
-      function playAudio(number) {
-        return new Promise((resolve, reject) => {
-          if (!audioFiles[number]) {
-            reject(new Error("Audio tidak tersedia"));
-            return;
-          }
-
-          audioPlayer.src = audioFiles[number];
-          audioPlayer.volume = volumeSlider.value / 100;
-
-          audioPlayer.onended = () => resolve();
-          audioPlayer.onerror = () => reject(new Error("Gagal memutar audio"));
-
-          audioPlayer.play().catch(reject);
-        });
-      }
-
-      // ============================================================
-      // CALL NUMBER
-      // ============================================================
-      async function callNumber(number) {
-        if (!audioFiles[number]) {
-          alert(
-            `Audio untuk meja ${number} tidak tersedia. Periksa file ${number}.mp3`,
-          );
-          return;
-        }
-
-        currentNumber = number;
-        document.getElementById("currentNumber").innerText = number;
-        document.getElementById("statusText").innerHTML =
-          `📢 Memanggil meja ${number}... ✨`;
-        document.getElementById("lastCall").innerHTML =
-          `Terakhir: Meja ${number} - ${new Date().toLocaleTimeString()}`;
-
-        // Update visual button
-        const btns = document.querySelectorAll(".number-btn");
-        btns.forEach((btn) => btn.classList.remove("called"));
-        if (btns[number - 1]) btns[number - 1].classList.add("called");
-
-        // Tambah ke recent calls
-        recentCalls.unshift({
-          number: number,
-          time: new Date().toLocaleTimeString(),
-        });
-        if (recentCalls.length > 8) recentCalls.pop();
-        updateRecentList();
-
-        // Update call counter
-        callCounter++;
-        document.getElementById("callCount").innerText = callCounter;
-        localStorage.setItem("gacoan_callCounter", callCounter);
-
-        try {
-          await playAudio(number);
-          document.getElementById("statusText").innerHTML =
-            "✅ Panggilan selesai";
-          setTimeout(() => {
-            document.getElementById("statusText").innerHTML =
-              "✨ Siap melayani ✨";
-          }, 2000);
-        } catch (error) {
-          console.error("Error playing audio:", error);
-          document.getElementById("statusText").innerHTML =
-            "❌ Gagal memutar audio";
-          setTimeout(() => {
-            document.getElementById("statusText").innerHTML =
-              "✨ Siap melayani ✨";
-          }, 2000);
-        }
       }
 
       // ============================================================
