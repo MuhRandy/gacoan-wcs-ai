@@ -49,6 +49,8 @@
         --badge-end: #f4a261;
         --border: rgba(42, 157, 143, 0.15);
         --shadow: rgba(42, 157, 143, 0.3);
+        --queued: #f4a261;
+        --playing: #e76f51;
       }
 
       /* ============================================================
@@ -71,6 +73,8 @@
         --badge-end: #6b6b6b;
         --border: rgba(59, 59, 59, 0.15);
         --shadow: rgba(0, 0, 0, 0.2);
+        --queued: #6b6b6b;
+        --playing: #3b3b3b;
       }
 
       /* ============================================================
@@ -93,6 +97,8 @@
         --badge-end: #4dd0e1;
         --border: rgba(26, 115, 232, 0.15);
         --shadow: rgba(26, 115, 232, 0.3);
+        --queued: #4dd0e1;
+        --playing: #00acc1;
       }
 
       /* ============================================================
@@ -115,6 +121,8 @@
         --badge-end: #f0b27a;
         --border: rgba(123, 45, 142, 0.15);
         --shadow: rgba(123, 45, 142, 0.3);
+        --queued: #f0b27a;
+        --playing: #e67e22;
       }
 
       /* ============================================================
@@ -137,6 +145,8 @@
         --badge-end: #ffb74d;
         --border: rgba(46, 125, 50, 0.15);
         --shadow: rgba(46, 125, 50, 0.3);
+        --queued: #ffb74d;
+        --playing: #ff8f00;
       }
 
       body {
@@ -204,7 +214,7 @@
           transform: scale(1);
         }
         50% {
-          opacity: 0.8;
+          opacity: 0.7;
           transform: scale(1.02);
         }
       }
@@ -404,6 +414,46 @@
 
       .number-btn:active {
         transform: scale(0.95);
+      }
+
+      .number-btn.queued {
+        background: var(--queued);
+        border-color: var(--queued);
+        color: var(--text-dark);
+        animation: queuedPulse 0.5s ease;
+      }
+
+      .number-btn.playing {
+        background: var(--playing);
+        border-color: var(--playing);
+        color: white;
+        animation: playingPulse 0.5s ease;
+      }
+
+      @keyframes queuedPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+          background: var(--secondary-light);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes playingPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
+          background: var(--secondary);
+        }
+        100% {
+          transform: scale(1);
+        }
       }
 
       .number-btn:disabled {
@@ -664,7 +714,6 @@
       // KONFIGURASI
       // ============================================================
       let audioFiles = {};
-      let currentNumber = null;
       let recentCalls = [];
       let audioPlayer = new Audio();
       let totalAudioFound = 0;
@@ -679,53 +728,37 @@
       document.getElementById("callCount").innerText = callCounter;
 
       // ============================================================
-      // THEME SWITCHER
+      // BUTTON VISUAL UPDATE
       // ============================================================
-      function setTheme(theme) {
-        const body = document.body;
-        body.classList.remove(
-          "theme-teal",
-          "theme-monochrome",
-          "theme-ocean",
-          "theme-purple",
-          "theme-forest",
-        );
-        body.classList.add(`theme-${theme}`);
+      function updateButtonVisual(number, status) {
+        const buttons = document.querySelectorAll(".number-btn");
+        const targetButton = buttons[number - 1];
+        if (!targetButton) return;
 
-        document.querySelectorAll(".theme-btn").forEach((btn) => {
-          btn.classList.remove("active");
-        });
-        event.target.classList.add("active");
+        // Reset all classes
+        targetButton.classList.remove("queued", "playing");
 
-        localStorage.setItem("gacoan_theme", theme);
+        if (status === "queued") {
+          targetButton.classList.add("queued");
+        } else if (status === "playing") {
+          targetButton.classList.add("playing");
+        }
+        // status 'normal' -> no special class
       }
 
-      function loadSavedTheme() {
-        const savedTheme = localStorage.getItem("gacoan_theme");
-        if (savedTheme && savedTheme !== "teal") {
-          const validThemes = [
-            "teal",
-            "monochrome",
-            "ocean",
-            "purple",
-            "forest",
-          ];
-          if (validThemes.includes(savedTheme)) {
-            document.body.classList.remove("theme-teal");
-            document.body.classList.add(`theme-${savedTheme}`);
-            const btn = document.querySelector(`.theme-${savedTheme}-btn`);
-            if (btn) btn.classList.add("active");
-          }
+      function refreshAllButtonsVisual() {
+        // Reset all buttons
+        for (let i = 1; i <= 50; i++) {
+          updateButtonVisual(i, "normal");
+        }
+
+        // Mark queued buttons
+        for (let i = 0; i < audioQueue.length; i++) {
+          const number = audioQueue[i];
+          const status = i === 0 && isPlaying ? "playing" : "queued";
+          updateButtonVisual(number, status);
         }
       }
-
-      // Volume
-      const volumeSlider = document.getElementById("volumeSlider");
-      volumeSlider.addEventListener("input", function () {
-        const val = this.value;
-        document.getElementById("volumePercent").innerText = val + "%";
-        audioPlayer.volume = val / 100;
-      });
 
       // ============================================================
       // QUEUE DISPLAY
@@ -735,6 +768,7 @@
         if (audioQueue.length === 0) {
           queueContainer.innerHTML =
             '<span style="color:var(--text-light); font-size:0.7rem;">Tidak ada antrian</span>';
+          refreshAllButtonsVisual();
           return;
         }
 
@@ -744,6 +778,8 @@
             return `<span class="queue-item ${isCurrent ? "playing" : ""}">Meja ${number}</span>`;
           })
           .join("");
+
+        refreshAllButtonsVisual();
       }
 
       // ============================================================
@@ -755,6 +791,7 @@
           updateQueueDisplay();
           document.getElementById("statusText").innerHTML =
             "✨ Siap melayani ✨";
+          document.getElementById("currentNumber").innerText = "—";
           return;
         }
 
@@ -770,7 +807,6 @@
         // Play audio
         if (!audioFiles[nextNumber]) {
           console.error(`Audio meja ${nextNumber} tidak tersedia`);
-          // Remove failed item and continue
           audioQueue.shift();
           playNext();
           return;
@@ -781,7 +817,6 @@
           audioPlayer.volume = volumeSlider.value / 100;
 
           await audioPlayer.play();
-          // Wait for audio to finish
           await new Promise((resolve) => {
             audioPlayer.onended = resolve;
             audioPlayer.onerror = resolve;
@@ -810,7 +845,6 @@
           playNext();
         } catch (error) {
           console.error("Error playing audio:", error);
-          // Remove problematic item and continue
           audioQueue.shift();
           playNext();
         }
@@ -827,14 +861,71 @@
           return;
         }
 
+        // Check if already in queue
+        if (audioQueue.includes(number)) {
+          alert(`Meja ${number} sudah dalam antrian`);
+          return;
+        }
+
         audioQueue.push(number);
         updateQueueDisplay();
 
-        // If not currently playing, start playing
         if (!isPlaying) {
           playNext();
         }
       }
+
+      // ============================================================
+      // THEME SWITCHER
+      // ============================================================
+      function setTheme(theme) {
+        const body = document.body;
+        body.classList.remove(
+          "theme-teal",
+          "theme-monochrome",
+          "theme-ocean",
+          "theme-purple",
+          "theme-forest",
+        );
+        body.classList.add(`theme-${theme}`);
+
+        document.querySelectorAll(".theme-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        localStorage.setItem("gacoan_theme", theme);
+
+        // Refresh button visuals to apply new theme colors
+        refreshAllButtonsVisual();
+      }
+
+      function loadSavedTheme() {
+        const savedTheme = localStorage.getItem("gacoan_theme");
+        if (savedTheme && savedTheme !== "teal") {
+          const validThemes = [
+            "teal",
+            "monochrome",
+            "ocean",
+            "purple",
+            "forest",
+          ];
+          if (validThemes.includes(savedTheme)) {
+            document.body.classList.remove("theme-teal");
+            document.body.classList.add(`theme-${savedTheme}`);
+            const btn = document.querySelector(`.theme-${savedTheme}-btn`);
+            if (btn) btn.classList.add("active");
+          }
+        }
+      }
+
+      // Volume
+      const volumeSlider = document.getElementById("volumeSlider");
+      volumeSlider.addEventListener("input", function () {
+        const val = this.value;
+        document.getElementById("volumePercent").innerText = val + "%";
+        audioPlayer.volume = val / 100;
+      });
 
       // ============================================================
       // CEK KETERSEDIAAN AUDIO
@@ -898,6 +989,7 @@
         }
 
         grid.innerHTML = html;
+        refreshAllButtonsVisual();
       }
 
       // ============================================================
