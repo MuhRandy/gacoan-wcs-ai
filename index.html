@@ -720,6 +720,7 @@
       let callCounter = parseInt(
         localStorage.getItem("gacoan_callCounter") || "0",
       );
+      const tableCount = 52; // Total meja yang tersedia
 
       // QUEUE SYSTEM
       let audioQueue = [];
@@ -748,7 +749,7 @@
 
       function refreshAllButtonsVisual() {
         // Reset all buttons
-        for (let i = 1; i <= 50; i++) {
+        for (let i = 1; i <= tableCount; i++) {
           updateButtonVisual(i, "normal");
         }
 
@@ -932,7 +933,7 @@
       // ============================================================
       async function checkAudioFiles() {
         const statusDiv = document.getElementById("audioStatus");
-        const totalTables = 50;
+        const totalTables = tableCount;
         let found = 0;
 
         for (let i = 1; i <= totalTables; i++) {
@@ -951,10 +952,11 @@
         totalAudioFound = found;
         document.getElementById("availableAudio").innerText = found;
         document.getElementById("audioCountText").innerHTML =
-          `🎵 ${found}/50 tersedia`;
+          `🎵 ${found}/${tableCount} tersedia`;
 
         if (found === totalTables) {
-          statusDiv.innerHTML = "✅ Semua file audio tersedia (1-50.mp3)";
+          statusDiv.innerHTML =
+            "✅ Semua file audio tersedia (1-" + tableCount + ".mp3)";
           statusDiv.classList.add("success");
           statusDiv.classList.remove("error");
         } else if (found > 0) {
@@ -978,7 +980,7 @@
         const grid = document.getElementById("numberGrid");
         let html = "";
 
-        for (let i = 1; i <= 50; i++) {
+        for (let i = 1; i <= tableCount; i++) {
           const hasAudio = !!audioFiles[i];
           html += `
                     <button class="number-btn" onclick="addToQueue(${i})" ${!hasAudio ? "disabled" : ""}>
@@ -1019,7 +1021,7 @@
         loadSavedTheme();
         checkAudioFiles();
         updateRecentList();
-        document.getElementById("totalTables").innerText = "50";
+        document.getElementById("totalTables").innerText = tableCount;
       }
 
       init();
